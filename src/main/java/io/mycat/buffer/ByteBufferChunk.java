@@ -88,7 +88,7 @@ public class ByteBufferChunk implements Comparable{
             LOGGER.warn("try to acquire a buffer with larger size than chunkSize!");
             return null;
         }
-        int d = this.maxOrder - 2 - (log2(normCapacity) - this.log2PageSize);
+        int d = this.maxOrder - 2 - (log2(normCapacity - 1) - this.log2PageSize);
         if (d > this.maxOrder - 1) {
             d = maxOrder - 1;
         }
@@ -173,10 +173,10 @@ public class ByteBufferChunk implements Comparable{
         int relativeAddress = (int) (address - bufAddress);
         int length = byteBuffer.capacity();
 
-        int depth = maxOrder - 1 - log2(length / pageSize);
+        int depth = maxOrder - 2 - log2((length - 1) / pageSize);
         int count = 0;
         int i;
-        for (i = 0; i < depthMap.length; i++) {
+        for (i = 1; i < depthMap.length; i++) {
             if (depthMap[i] == depth) {
                 if (count == relativeAddress) {
                     break;
@@ -218,7 +218,7 @@ public class ByteBufferChunk implements Comparable{
     }
 
     private static int log2(int chunkSize) {
-        if (chunkSize <= 0) {
+        if (chunkSize < 0) {
             LOGGER.warn("invalid parameter!");
             throw new IllegalArgumentException();
         }
